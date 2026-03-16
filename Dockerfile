@@ -4,7 +4,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod +x ./mvnw
+RUN chmod +x mvnw
+RUN chmod +x .mvn/wrapper/maven-wrapper.jar || true
+
 RUN ./mvnw clean package -DskipTests
 
 EXPOSE 8080
