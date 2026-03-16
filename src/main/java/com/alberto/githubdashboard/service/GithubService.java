@@ -1,9 +1,6 @@
 package com.alberto.githubdashboard.service;
 
-import com.alberto.githubdashboard.model.RepositoryInfo;
-import com.alberto.githubdashboard.model.Contributor;
-import com.alberto.githubdashboard.model.CommitActivity;
-import com.alberto.githubdashboard.model.LanguageStats;
+import com.alberto.githubdashboard.model.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -200,6 +197,35 @@ public class GithubService {
 
             return new ArrayList<>();
         }
+    }
+
+    public List<UserRepository> getUserRepositories(String username){
+
+        String apiUrl = "https://api.github.com/users/" + username + "/repos";
+
+        List<Map<String,Object>> response =
+                restTemplate.getForObject(apiUrl, List.class);
+
+        List<UserRepository> repositories = new ArrayList<>();
+
+        if(response == null){
+            return repositories;
+        }
+
+        for(Map<String,Object> repo : response){
+
+            UserRepository r = new UserRepository();
+
+            r.setName((String) repo.get("name"));
+            r.setStars((Integer) repo.get("stargazers_count"));
+            r.setForks((Integer) repo.get("forks_count"));
+            r.setLanguage((String) repo.get("language"));
+            r.setUrl((String) repo.get("html_url"));
+
+            repositories.add(r);
+        }
+
+        return repositories;
     }
 
 }

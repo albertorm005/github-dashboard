@@ -187,6 +187,41 @@
 
         </div>
 
+        <div th:if="${userRepos != null}" class="card mt-4">
+
+            <h3>User Repositories</h3>
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>Repository</th>
+                    <th>Stars</th>
+                    <th>Forks</th>
+                    <th>Language</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="repo : ${userRepos}">
+
+                    <td>
+                        <a th:href="${repo.url}" th:text="${repo.name}" target="_blank"></a>
+                    </td>
+
+                    <td th:text="${repo.stars}"></td>
+
+                    <td th:text="${repo.forks}"></td>
+
+                    <td th:text="${repo.language}"></td>
+
+                </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
         <div class="card">
 
             <h2>Top Contributors</h2>
