@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+    <title>GitHub Repository Analytics</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            background:#f4f6f8;
+            margin:0;
+            padding:40px;
+        }
+
+        .container{
+            max-width:900px;
+            margin:auto;
+        }
+
+        h1{
+            text-align:center;
+        }
+
+        .card{
+            background:white;
+            padding:25px;
+            margin-top:25px;
+            border-radius:10px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        input{
+            width:80%;
+            padding:10px;
+            font-size:16px;
+        }
+
+        button{
+            padding:10px 20px;
+            font-size:16px;
+            background:#333;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#555;
+        }
+
+        .metrics{
+            display:flex;
+            justify-content:space-between;
+            margin-top:20px;
+        }
+
+        .metric-box{
+            background:#f2f4f7;
+            padding:20px;
+            border-radius:8px;
+            text-align:center;
+            width:30%;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th,td{
+            padding:10px;
+            border-bottom:1px solid #ddd;
+            text-align:left;
+        }
+
+        th{
+            background:#f2f4f7;
+        }
+
+        .avatar{
+            width:40px;
+            border-radius:50%;
+        }
+
+        canvas{
+            margin-top:20px;
+        }
+
+        /* Spinner */
+
+        .spinner {
+          border: 6px solid #f3f3f3;
+          border-top: 6px solid #333;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: auto;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg);}
+          100% { transform: rotate(360deg);}
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>GitHub Repository Analytics</h1>
+
+    <div class="card">
+
+        <form action="/analyze" method="post" onsubmit="return validateRepoUrl()">
+
+            <input
+                    type="text"
+                    id="repoInput"
+                    name="repoUrl"
+                    placeholder="https://github.com/user/repository"
+                    required
+            >
+
+            <button type="submit">Analyze</button>
+
+        </form>
+
+        <p id="urlError" style="color:red; display:none;">
+            Please enter a valid GitHub repository URL
+        </p>
+
+        <div id="loader" style="display:none; text-align:center; margin-top:20px;">
+
+            <div class="spinner"></div>
+
+            <p>Analyzing repository...</p>
+
+        </div>
+
+    </div>
+
+    <div th:if="${repo != null}">
+
+        <div class="card">
+
+            <h2 th:text="${repo.name}"></h2>
+
+            <p th:text="${repo.description}"></p>
+
+            <div class="metrics">
+
+                <div class="metric-box">
+                    <h3 th:text="${repo.stars}"></h3>
+                    <p>Stars</p>
+                </div>
+
+                <div class="metric-box">
+                    <h3 th:text="${repo.forks}"></h3>
+                    <p>Forks</p>
+                </div>
+
+                <div class="metric-box">
+                    <h3 th:text="${repo.watchers}"></h3>
+                    <p>Watchers</p>
+                </div>
+
+            </div>
+
+            <p><b>Language:</b> <span th:text="${repo.language}"></span></p>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Repository Metrics</h2>
+
+            <canvas id="metricsChart"></canvas>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Top Contributors</h2>
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>Avatar</th>
+                    <th>User</th>
+                    <th>Contributions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="c : ${contributors}">
+
+                    <td>
+                        <img th:src="${c.avatarUrl}" class="avatar">
+                    </td>
+
+                    <td th:text="${c.login}"></td>
+
+                    <td th:text="${c.contributions}"></td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Commit Activity (Last Year)</h2>
+
+            <canvas id="commitChart"></canvas>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Language Distribution</h2>
+
+            <canvas id="languageChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    let repo = /*[[${repo}]]*/ null;
+    let commits = /*[[${commits}]]*/ [];
+    let languages = /*[[${languages}]]*/ [];
+
+    if(repo != null){
+
+    new Chart(document.getElementById("metricsChart"), {
+
+    type: "bar",
+
+    data: {
+
+    labels:["Stars","Forks","Watchers"],
+
+    datasets:[{
+
+    label:"Repository Metrics",
+
+    data:[repo.stars,repo.forks,repo.watchers],
+
+    backgroundColor:[
+    "#f1c40f",
+    "#3498db",
+    "#2ecc71"
+    ]
+
+    }]
+
+    }
+
+    });
+
+    }
+
+    if(commits.length > 0){
+
+    let weeks=[];
+    let totals=[];
+
+    commits.forEach(c=>{
+
+    weeks.push(new Date(c.week * 1000).toLocaleDateString());
+    totals.push(c.total);
+
+    });
+
+    new Chart(document.getElementById("commitChart"),{
+
+    type:"line",
+
+    data:{
+
+    labels:weeks,
+
+    datasets:[{
+
+    label:"Commits per week",
+
+    data:totals,
+
+    borderColor:"#4CAF50",
+
+    backgroundColor:"rgba(76,175,80,0.2)",
+
+    fill:true
+
+    }]
+
+    }
+
+    });
+
+    }
+
+    if(languages.length > 0){
+
+    let names=[];
+    let values=[];
+
+    languages.forEach(l=>{
+
+    names.push(l.language);
+    values.push(l.percentage);
+
+    });
+
+    new Chart(document.getElementById("languageChart"),{
+
+    type:"doughnut",
+
+    data:{
+
+    labels:names,
+
+    datasets:[{
+
+    data:values,
+
+    backgroundColor:[
+    "#f1c40f",
+    "#3498db",
+    "#2ecc71",
+    "#e74c3c",
+    "#9b59b6",
+    "#1abc9c"
+    ]
+
+    }]
+
+    }
+
+    });
+
+    }
+
+    function showLoader(){
+    document.getElementById("loader").style.display="block";
+    }
+
+</script>
+
+<script>
+
+    function validateRepoUrl(){
+
+        const input = document.getElementById("repoInput").value;
+        const error = document.getElementById("urlError");
+
+        const githubRegex = /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/;
+
+        if(!githubRegex.test(input)){
+
+            error.style.display = "block";
+            return false;
+
+        }
+
+        error.style.display = "none";
+
+        showLoader();
+
+        return true;
+
+    }
+
+</script>
+
+</body>
+</html>
