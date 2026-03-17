@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 
+    ```
     <meta charset="UTF-8">
     <title>GitHub Repository Analytics</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-
         body{
             font-family: Arial, sans-serif;
             background:#f4f6f8;
@@ -91,8 +92,6 @@
             margin-top:20px;
         }
 
-        /* Spinner */
-
         .spinner {
           border: 6px solid #f3f3f3;
           border-top: 6px solid #333;
@@ -107,8 +106,8 @@
           0% { transform: rotate(0deg);}
           100% { transform: rotate(360deg);}
         }
-
     </style>
+    ```
 
 </head>
 
@@ -116,8 +115,10 @@
 
 <div class="container">
 
+    ```
     <h1>GitHub Repository Analytics</h1>
 
+    <!-- BUSCADOR -->
     <div class="card">
 
         <form action="/analyze" method="post" onsubmit="return validateRepoUrl()">
@@ -126,7 +127,7 @@
                     type="text"
                     id="repoInput"
                     name="repoUrl"
-                    placeholder="https://github.com/user/repository"
+                    placeholder="https://github.com/user/repository OR user"
                     required
             >
 
@@ -135,29 +136,24 @@
         </form>
 
         <p id="urlError" style="color:red; display:none;">
-            Please enter a valid GitHub repository URL
+            Please enter a valid GitHub URL
         </p>
 
         <div id="loader" style="display:none; text-align:center; margin-top:20px;">
-
             <div class="spinner"></div>
-
-            <p>Analyzing repository...</p>
-
+            <p>Analyzing...</p>
         </div>
 
     </div>
 
+    <!-- ================= REPO ================= -->
     <div th:if="${repo != null}">
 
         <div class="card">
-
             <h2 th:text="${repo.name}"></h2>
-
             <p th:text="${repo.description}"></p>
 
             <div class="metrics">
-
                 <div class="metric-box">
                     <h3 th:text="${repo.stars}"></h3>
                     <p>Stars</p>
@@ -172,27 +168,57 @@
                     <h3 th:text="${repo.watchers}"></h3>
                     <p>Watchers</p>
                 </div>
-
             </div>
 
             <p><b>Language:</b> <span th:text="${repo.language}"></span></p>
-
         </div>
 
         <div class="card">
-
             <h2>Repository Metrics</h2>
-
             <canvas id="metricsChart"></canvas>
-
         </div>
 
-        <div th:if="${userRepos != null}" class="card mt-4">
-
-            <h3>User Repositories</h3>
+        <div class="card">
+            <h2>Top Contributors</h2>
 
             <table>
+                <thead>
+                <tr>
+                    <th>Avatar</th>
+                    <th>User</th>
+                    <th>Contributions</th>
+                </tr>
+                </thead>
 
+                <tbody>
+                <tr th:each="c : ${contributors}">
+                    <td><img th:src="${c.avatarUrl}" class="avatar"></td>
+                    <td th:text="${c.login}"></td>
+                    <td th:text="${c.contributions}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Commit Activity (Last Year)</h2>
+            <canvas id="commitChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Language Distribution</h2>
+            <canvas id="languageChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- ================= USER ================= -->
+    <div th:if="${userRepos != null}">
+
+        <div class="card">
+            <h2>User Repositories</h2>
+
+            <table>
                 <thead>
                 <tr>
                     <th>Repository</th>
@@ -203,86 +229,29 @@
                 </thead>
 
                 <tbody>
-                <tr th:each="repo : ${userRepos}">
-
-                    <td>
-                        <a th:href="${repo.url}" th:text="${repo.name}" target="_blank"></a>
-                    </td>
-
-                    <td th:text="${repo.stars}"></td>
-
-                    <td th:text="${repo.forks}"></td>
-
-                    <td th:text="${repo.language}"></td>
-
+                <tr th:each="r : ${userRepos}">
+                    <td><a th:href="${r.url}" th:text="${r.name}" target="_blank"></a></td>
+                    <td th:text="${r.stars}"></td>
+                    <td th:text="${r.forks}"></td>
+                    <td th:text="${r.language}"></td>
                 </tr>
                 </tbody>
-
             </table>
 
         </div>
 
-        <div th:if="${topRepos != null}" class="card mt-4">
-
-            <h3>Top 5 Repositories by Stars</h3>
-
+        <!-- 🔥 TOP REPOS CORRECTO -->
+        <div th:if="${topRepos != null}" class="card">
+            <h2>Top 5 Repositories by Stars</h2>
             <canvas id="topReposChart"></canvas>
-
-        </div>
-
-        <div class="card">
-
-            <h2>Top Contributors</h2>
-
-            <table>
-
-                <thead>
-                <tr>
-                    <th>Avatar</th>
-                    <th>User</th>
-                    <th>Contributions</th>
-                </tr>
-                </thead>
-
-                <tbody>
-
-                <tr th:each="c : ${contributors}">
-
-                    <td>
-                        <img th:src="${c.avatarUrl}" class="avatar">
-                    </td>
-
-                    <td th:text="${c.login}"></td>
-
-                    <td th:text="${c.contributions}"></td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-        <div class="card">
-
-            <h2>Commit Activity (Last Year)</h2>
-
-            <canvas id="commitChart"></canvas>
-
-        </div>
-
-        <div class="card">
-
-            <h2>Language Distribution</h2>
-
-            <canvas id="languageChart"></canvas>
-
         </div>
 
     </div>
+    ```
 
 </div>
+
+<!-- ================= CHARTS ================= -->
 
 <script th:inline="javascript">
 
@@ -290,122 +259,77 @@
     let commits = /*[[${commits}]]*/ [];
     let languages = /*[[${languages}]]*/ [];
 
-    if(repo != null){
-
-    new Chart(document.getElementById("metricsChart"), {
-
-    type: "bar",
-
-    data: {
-
-    labels:["Stars","Forks","Watchers"],
-
-    datasets:[{
-
-    label:"Repository Metrics",
-
-    data:[repo.stars,repo.forks,repo.watchers],
-
-    backgroundColor:[
-    "#f1c40f",
-    "#3498db",
-    "#2ecc71"
-    ]
-
-    }]
-
-    }
-
-    });
-
+    if(repo){
+        new Chart(document.getElementById("metricsChart"), {
+            type: "bar",
+            data: {
+                labels:["Stars","Forks","Watchers"],
+                datasets:[{
+                    label:"Repository Metrics",
+                    data:[repo.stars,repo.forks,repo.watchers]
+                }]
+            }
+        });
     }
 
     if(commits.length > 0){
+        let weeks=[], totals=[];
+        commits.forEach(c=>{
+            weeks.push(new Date(c.week * 1000).toLocaleDateString());
+            totals.push(c.total);
+        });
 
-    let weeks=[];
-    let totals=[];
-
-    commits.forEach(c=>{
-
-    weeks.push(new Date(c.week * 1000).toLocaleDateString());
-    totals.push(c.total);
-
-    });
-
-    new Chart(document.getElementById("commitChart"),{
-
-    type:"line",
-
-    data:{
-
-    labels:weeks,
-
-    datasets:[{
-
-    label:"Commits per week",
-
-    data:totals,
-
-    borderColor:"#4CAF50",
-
-    backgroundColor:"rgba(76,175,80,0.2)",
-
-    fill:true
-
-    }]
-
-    }
-
-    });
-
+        new Chart(document.getElementById("commitChart"),{
+            type:"line",
+            data:{
+                labels:weeks,
+                datasets:[{
+                    label:"Commits",
+                    data:totals
+                }]
+            }
+        });
     }
 
     if(languages.length > 0){
+        let names=[], values=[];
+        languages.forEach(l=>{
+            names.push(l.language);
+            values.push(l.percentage);
+        });
 
-    let names=[];
-    let values=[];
-
-    languages.forEach(l=>{
-
-    names.push(l.language);
-    values.push(l.percentage);
-
-    });
-
-    new Chart(document.getElementById("languageChart"),{
-
-    type:"doughnut",
-
-    data:{
-
-    labels:names,
-
-    datasets:[{
-
-    data:values,
-
-    backgroundColor:[
-    "#f1c40f",
-    "#3498db",
-    "#2ecc71",
-    "#e74c3c",
-    "#9b59b6",
-    "#1abc9c"
-    ]
-
-    }]
-
-    }
-
-    });
-
-    }
-
-    function showLoader(){
-    document.getElementById("loader").style.display="block";
+        new Chart(document.getElementById("languageChart"),{
+            type:"doughnut",
+            data:{
+                labels:names,
+                datasets:[{ data:values }]
+            }
+        });
     }
 
 </script>
+
+<!-- TOP REPOS -->
+
+<script th:if="${topRepos != null}" th:inline="javascript">
+
+    let names = /*[[${topRepos.^map(name)}]]*/ [];
+    let stars = /*[[${topRepos.^map(stars)}]]*/ [];
+
+    new Chart(document.getElementById("topReposChart"), {
+        type: "bar",
+        data: {
+            labels: names,
+            datasets: [{
+                label: "Stars",
+                data: stars
+            }]
+        }
+    });
+
+</script>
+
+<!-- VALIDACIÓN -->
 
 <script>
     function validateRepoUrl(){
@@ -413,64 +337,15 @@
         let input = document.getElementById("repoInput").value.trim();
         const error = document.getElementById("urlError");
 
-        // Validación simple y robusta
         if (!input.startsWith("https://github.com/")) {
             error.style.display = "block";
             return false;
         }
 
-        // Quitar https://github.com/
-        let path = input.replace("https://github.com/", "");
-
-        // Quitar slash final
-        if(path.endsWith("/")){
-            path = path.slice(0, -1);
-        }
-
-        const parts = path.split("/");
-
-        // Debe ser user o user/repo
-        if(parts.length < 1 || parts.length > 2){
-            error.style.display = "block";
-            return false;
-        }
-
         error.style.display = "none";
-        showLoader();
-
+        document.getElementById("loader").style.display="block";
         return true;
     }
-</script>
-
-<script th:if="${topRepos != null}">
-
-    const repoNames = [
-    [[${topRepos[0].name}]],
-    [[${topRepos[1].name}]],
-    [[${topRepos[2].name}]],
-    [[${topRepos[3].name}]],
-    [[${topRepos[4].name}]]
-    ];
-
-    const repoStars = [
-    [[${topRepos[0].stars}]],
-    [[${topRepos[1].stars}]],
-    [[${topRepos[2].stars}]],
-    [[${topRepos[3].stars}]],
-    [[${topRepos[4].stars}]]
-    ];
-
-    new Chart(document.getElementById('topReposChart'), {
-        type: 'bar',
-        data: {
-            labels: repoNames,
-            datasets: [{
-                label: 'Stars',
-                data: repoStars
-            }]
-        }
-    });
-
 </script>
 
 </body>
