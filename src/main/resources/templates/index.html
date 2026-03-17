@@ -8,106 +8,7 @@
     <title>GitHub Repository Analytics</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            background:#f4f6f8;
-            margin:0;
-            padding:40px;
-        }
-
-        .container{
-            max-width:900px;
-            margin:auto;
-        }
-
-        h1{
-            text-align:center;
-        }
-
-        .card{
-            background:white;
-            padding:25px;
-            margin-top:25px;
-            border-radius:10px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.08);
-        }
-
-        input{
-            width:80%;
-            padding:10px;
-            font-size:16px;
-        }
-
-        button{
-            padding:10px 20px;
-            font-size:16px;
-            background:#333;
-            color:white;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-        }
-
-        button:hover{
-            background:#555;
-        }
-
-        .metrics{
-            display:flex;
-            justify-content:space-between;
-            margin-top:20px;
-        }
-
-        .metric-box{
-            background:#f2f4f7;
-            padding:20px;
-            border-radius:8px;
-            text-align:center;
-            width:30%;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
-
-        th,td{
-            padding:10px;
-            border-bottom:1px solid #ddd;
-            text-align:left;
-        }
-
-        th{
-            background:#f2f4f7;
-        }
-
-        .avatar{
-            width:40px;
-            border-radius:50%;
-        }
-
-        canvas{
-            margin-top:20px;
-        }
-
-        .spinner {
-          border: 6px solid #f3f3f3;
-          border-top: 6px solid #333;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-          margin: auto;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg);}
-          100% { transform: rotate(360deg);}
-        }
-    </style>
-    ```
+    <link rel="stylesheet" href="/css/styles.css">
 
 </head>
 
@@ -115,8 +16,12 @@
 
 <div class="container">
 
-    ```
+
     <h1>GitHub Repository Analytics</h1>
+
+    <button onclick="toggleDarkMode()" style="margin-bottom:20px;">
+        🌙 Toggle Dark Mode
+    </button>
 
     <!-- BUSCADOR -->
     <div class="card">
@@ -145,6 +50,43 @@
         </div>
 
     </div>
+    <div th:if="${history != null}" class="card">
+
+        <h3>Search History</h3>
+
+        <ul>
+            <li th:each="h : ${history}">
+                <a th:href="@{/analyze(repoUrl=${h})}" th:text="${h}"></a>
+            </li>
+        </ul>
+
+    </div>
+    <a th:if="${searchedUrl != null}"
+       th:href="@{/download(repoUrl=${searchedUrl})}"
+       target="_blank">
+
+        <button style="margin-top:15px;">
+            Download JSON
+        </button>
+
+    </a>
+    <a th:if="${searchedUrl != null}"
+       th:href="@{/pdf(repoUrl=${searchedUrl})}"
+       target="_blank">
+
+        <button style="margin-top:10px;">
+            Download PDF
+        </button>
+
+    </a>
+
+    <script>
+        function enableDownload(repoUrl){
+            const btn = document.getElementById("downloadBtn");
+            btn.style.display = "inline-block";
+            btn.href = "/download?repoUrl=" + encodeURIComponent(repoUrl);
+        }
+    </script>
 
     <!-- ================= REPO ================= -->
     <div th:if="${repo != null}">
@@ -247,7 +189,7 @@
         </div>
 
     </div>
-    ```
+
 
 </div>
 
@@ -307,25 +249,39 @@
         });
     }
 
+    if(repo){
+    enableDownload(window.location.origin + "/analyze");
+}
+
 </script>
 
 <!-- TOP REPOS -->
 
-<script th:if="${topRepos != null}" th:inline="javascript">
+<script th:inline="javascript">
 
-    let names = /*[[${topRepos.^map(name)}]]*/ [];
-    let stars = /*[[${topRepos.^map(stars)}]]*/ [];
+    let topRepos = /*[[${topRepos}]]*/ [];
 
-    new Chart(document.getElementById("topReposChart"), {
-        type: "bar",
-        data: {
-            labels: names,
-            datasets: [{
-                label: "Stars",
-                data: stars
-            }]
-        }
-    });
+    if(topRepos && topRepos.length > 0){
+
+        let names = [];
+        let stars = [];
+
+        topRepos.forEach(r => {
+            names.push(r.name);
+            stars.push(r.stars);
+        });
+
+        new Chart(document.getElementById("topReposChart"), {
+            type: "bar",
+            data: {
+                labels: names,
+                datasets: [{
+                    label: "Stars",
+                    data: stars
+                }]
+            }
+        });
+    }
 
 </script>
 
@@ -345,6 +301,25 @@
         error.style.display = "none";
         document.getElementById("loader").style.display="block";
         return true;
+    }
+</script>
+<script>
+    function toggleDarkMode(){
+        document.body.classList.toggle("dark-mode");
+
+        // guardar preferencia
+        if(document.body.classList.contains("dark-mode")){
+            localStorage.setItem("theme","dark");
+        } else {
+            localStorage.setItem("theme","light");
+        }
+    }
+
+    // cargar preferencia al abrir
+    window.onload = function(){
+        if(localStorage.getItem("theme") === "dark"){
+            document.body.classList.add("dark-mode");
+        }
     }
 </script>
 
