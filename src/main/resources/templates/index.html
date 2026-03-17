@@ -410,18 +410,32 @@
 <script>
     function validateRepoUrl(){
 
-        const input = document.getElementById("repoInput").value;
+        let input = document.getElementById("repoInput").value.trim();
         const error = document.getElementById("urlError");
 
-        const githubRegex = /^https:\/\/github\.com\/[^\/]+(\/[^\/]+)?$/;
+        // Validación simple y robusta
+        if (!input.startsWith("https://github.com/")) {
+            error.style.display = "block";
+            return false;
+        }
 
-        if(!githubRegex.test(input)){
+        // Quitar https://github.com/
+        let path = input.replace("https://github.com/", "");
+
+        // Quitar slash final
+        if(path.endsWith("/")){
+            path = path.slice(0, -1);
+        }
+
+        const parts = path.split("/");
+
+        // Debe ser user o user/repo
+        if(parts.length < 1 || parts.length > 2){
             error.style.display = "block";
             return false;
         }
 
         error.style.display = "none";
-
         showLoader();
 
         return true;
