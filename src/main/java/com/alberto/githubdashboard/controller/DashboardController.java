@@ -33,7 +33,13 @@ public class DashboardController {
 
         try {
 
-            String cleanUrl = repoUrl.replace("https://github.com/", "");
+            String cleanUrl = repoUrl.replace("https://github.com/", "").trim();
+
+            // eliminar slash final si existe
+            if(cleanUrl.endsWith("/")){
+                cleanUrl = cleanUrl.substring(0, cleanUrl.length() - 1);
+            }
+
             String[] parts = cleanUrl.split("/");
 
             // 👉 Usuario
