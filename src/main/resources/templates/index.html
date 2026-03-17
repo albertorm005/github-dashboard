@@ -408,19 +408,16 @@
 </script>
 
 <script>
-
     function validateRepoUrl(){
 
         const input = document.getElementById("repoInput").value;
         const error = document.getElementById("urlError");
 
-        const githubRegex = /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/;
+        const githubRegex = /^https:\/\/github\.com\/[^\/]+(\/[^\/]+)?$/;
 
         if(!githubRegex.test(input)){
-
             error.style.display = "block";
             return false;
-
         }
 
         error.style.display = "none";
@@ -428,9 +425,7 @@
         showLoader();
 
         return true;
-
     }
-
 </script>
 
 <script th:if="${topRepos != null}">
