@@ -228,4 +228,35 @@ public class GithubService {
         return repositories;
     }
 
+    public List<UserRepository> getTopRepositories(String username){
+
+        String apiUrl = "https://api.github.com/users/" + username + "/repos";
+
+        List<Map<String,Object>> response =
+                restTemplate.getForObject(apiUrl, List.class);
+
+        List<UserRepository> repos = new ArrayList<>();
+
+        if(response == null){
+            return repos;
+        }
+
+        for(Map<String,Object> repo : response){
+
+            UserRepository r = new UserRepository();
+
+            r.setName((String) repo.get("name"));
+            r.setStars((Integer) repo.get("stargazers_count"));
+            r.setForks((Integer) repo.get("forks_count"));
+            r.setLanguage((String) repo.get("language"));
+            r.setUrl((String) repo.get("html_url"));
+
+            repos.add(r);
+        }
+
+        repos.sort((a,b) -> b.getStars() - a.getStars());
+
+        return repos.stream().limit(5).toList();
+    }
+
 }

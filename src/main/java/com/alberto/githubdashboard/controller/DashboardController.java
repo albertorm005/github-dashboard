@@ -1,10 +1,6 @@
 package com.alberto.githubdashboard.controller;
 
-import com.alberto.githubdashboard.model.RepositoryInfo;
-import com.alberto.githubdashboard.model.Contributor;
-import com.alberto.githubdashboard.model.CommitActivity;
-import com.alberto.githubdashboard.model.LanguageStats;
-import com.alberto.githubdashboard.model.UserRepository;
+import com.alberto.githubdashboard.model.*;
 import com.alberto.githubdashboard.service.GithubService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,21 +29,24 @@ public class DashboardController {
         List<CommitActivity> commits = null;
         List<LanguageStats> languages = null;
         List<UserRepository> userRepos = null;
+        List<UserRepository> topRepos = null;
 
         try {
 
             String cleanUrl = repoUrl.replace("https://github.com/", "");
             String[] parts = cleanUrl.split("/");
 
-            // Caso 1: URL de usuario
+            // 👉 Usuario
             if(parts.length == 1){
 
                 userRepos = githubService.getUserRepositories(parts[0]);
-                model.addAttribute("userRepos", userRepos);
+                topRepos = githubService.getTopRepositories(parts[0]);
 
+                model.addAttribute("userRepos", userRepos);
+                model.addAttribute("topRepos", topRepos);
             }
 
-            // Caso 2: URL de repositorio
+            // 👉 Repositorio
             if(parts.length >= 2){
 
                 repo = githubService.getRepository(repoUrl);

@@ -222,6 +222,14 @@
 
         </div>
 
+        <div th:if="${topRepos != null}" class="card mt-4">
+
+            <h3>Top 5 Repositories by Stars</h3>
+
+            <canvas id="topReposChart"></canvas>
+
+        </div>
+
         <div class="card">
 
             <h2>Top Contributors</h2>
@@ -422,6 +430,37 @@
         return true;
 
     }
+
+</script>
+
+<script th:if="${topRepos != null}">
+
+    const repoNames = [
+    [[${topRepos[0].name}]],
+    [[${topRepos[1].name}]],
+    [[${topRepos[2].name}]],
+    [[${topRepos[3].name}]],
+    [[${topRepos[4].name}]]
+    ];
+
+    const repoStars = [
+    [[${topRepos[0].stars}]],
+    [[${topRepos[1].stars}]],
+    [[${topRepos[2].stars}]],
+    [[${topRepos[3].stars}]],
+    [[${topRepos[4].stars}]]
+    ];
+
+    new Chart(document.getElementById('topReposChart'), {
+        type: 'bar',
+        data: {
+            labels: repoNames,
+            datasets: [{
+                label: 'Stars',
+                data: repoStars
+            }]
+        }
+    });
 
 </script>
 
