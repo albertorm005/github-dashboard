@@ -24,46 +24,43 @@ public class DashboardController {
     @PostMapping("/analyze")
     public String analyze(@RequestParam("repoUrl") String repoUrl, Model model) {
 
-        RepositoryInfo repo = null;
-        List<Contributor> contributors = null;
-        List<CommitActivity> commits = null;
-        List<LanguageStats> languages = null;
-        List<UserRepository> userRepos = null;
-        List<UserRepository> topRepos = null;
-
         try {
 
             String cleanUrl = repoUrl.replace("https://github.com/", "").trim();
 
-            // eliminar slash final si existe
+            // quitar slash final
             if(cleanUrl.endsWith("/")){
                 cleanUrl = cleanUrl.substring(0, cleanUrl.length() - 1);
             }
 
             String[] parts = cleanUrl.split("/");
 
-            // 👉 Usuario
+            // 🔥 CASO 1: USUARIO
             if(parts.length == 1){
 
-                userRepos = githubService.getUserRepositories(parts[0]);
-                topRepos = githubService.getTopRepositories(parts[0]);
+                List<UserRepository> userRepos = githubService.getUserRepositories(parts[0]);
+                List<UserRepository> topRepos = githubService.getTopRepositories(parts[0]);
 
                 model.addAttribute("userRepos", userRepos);
                 model.addAttribute("topRepos", topRepos);
+
+                return "index";
             }
 
-            // 👉 Repositorio
+            // 🔥 CASO 2: REPOSITORIO
             if(parts.length >= 2){
 
-                repo = githubService.getRepository(repoUrl);
-                contributors = githubService.getContributors(repoUrl);
-                commits = githubService.getCommitActivity(repoUrl);
-                languages = githubService.getLanguages(repoUrl);
+                RepositoryInfo repo = githubService.getRepository(repoUrl);
+                List<Contributor> contributors = githubService.getContributors(repoUrl);
+                List<CommitActivity> commits = githubService.getCommitActivity(repoUrl);
+                List<LanguageStats> languages = githubService.getLanguages(repoUrl);
 
                 model.addAttribute("repo", repo);
                 model.addAttribute("contributors", contributors);
                 model.addAttribute("commits", commits);
                 model.addAttribute("languages", languages);
+
+                return "index";
             }
 
         } catch (Exception e) {
