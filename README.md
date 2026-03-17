@@ -88,13 +88,13 @@ https://github.com/google
 
 ## 📸 Screenshots
 
-![Dashboard](screenshots/captura1.png)
+![Dashboard](screanshots/captura1.png)
 
-![Dashboard](screenshots/captura2.png)
+![Dashboard](screanshots/captura2.png)
 
-![Dashboard](screenshots/captura3.png)
+![Dashboard](screanshots/captura3.png)
 
-![Dashboard](screenshots/captura4.png)
+![Dashboard](screanshots/captura4.png)
 ---
 
 ## 💼 Project Purpose
