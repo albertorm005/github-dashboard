@@ -99,7 +99,7 @@ https://github.com/google
 
 ## 💼 Project Purpose
 
-This project was developed as a **portfolio and final project (DAM)** to demonstrate:
+This project was developed as a **portfolio** to demonstrate:
 
 * Backend development with Spring Boot
 * API integration
