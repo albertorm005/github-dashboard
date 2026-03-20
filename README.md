@@ -74,6 +74,6 @@ Aquí tienes una vista previa del nuevo diseño premium:
 
 * **Versión actual**: 2.0.0 (Massive Overhaul)
 * **Autor Original**: Alberto Rodríguez
-* **Actualizaciones**: Refactorización completa, Issue Explorer y Rediseño Premium.
+* **Actualizaciones**: Refactorización completa, Issue Explorer y Rediseño.
 
 ---
