@@ -1,4 +1,4 @@
-# 🚀 GitHub Analytics & Issue Discovery Dashboard (V2.0)
+# 🚀 GitHub Analytics & Issue Discovery Dashboard
 
 Una potente aplicación web desarrollada con **Java + Spring Boot** para analizar repositorios y descubrir oportunidades de contribución en GitHub en tiempo real.
 
