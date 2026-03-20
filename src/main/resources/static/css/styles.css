@@ -1,32 +1,39 @@
 /* ===== VARIABLES ===== */
 
 :root {
-    --bg: #f4f6f8;
-    --text: #000;
-    --card: #ffffff;
+    --bg: #f0f2f5;
+    --text: #1c1e21;
+    --card: rgba(255, 255, 255, 0.9);
     --input: #ffffff;
-    --button: #333;
-    --button-hover: #555;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --accent: #f59e0b;
+    --glass: rgba(255, 255, 255, 0.7);
+    --border: rgba(0, 0, 0, 0.1);
 }
 
 .dark-mode {
-    --bg: #121212;
-    --text: #ffffff;
-    --card: #1e1e1e;
-    --input: #2a2a2a;
-    --button: #444;
-    --button-hover: #666;
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --card: rgba(30, 41, 59, 0.8);
+    --input: #1e293b;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --accent: #fbbf24;
+    --glass: rgba(15, 23, 42, 0.7);
+    --border: rgba(255, 255, 255, 0.1);
 }
 
 /* ===== BASE ===== */
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     margin: 0;
     padding: 40px;
-    transition: 0.3s;
+    transition: background 0.4s ease, color 0.4s ease;
+    line-height: 1.6;
 }
 
 .container {
@@ -42,10 +49,18 @@ h1 {
 
 .card {
     background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     padding: 25px;
     margin-top: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
 }
 
 /* ===== INPUT ===== */
@@ -62,17 +77,26 @@ input {
 /* ===== BUTTON ===== */
 
 button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 16px;
-    background: var(--button);
+    background: var(--primary);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 12px;
     cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 button:hover {
-    background: var(--button-hover);
+    background: var(--primary-hover);
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 /* ===== METRICS ===== */
@@ -99,8 +123,8 @@ table {
 }
 
 th, td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
 }
 
 th {
@@ -129,4 +153,174 @@ th {
 @keyframes spin {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
+}
+
+/* ===== ERROR INFO ===== */
+
+.error-alert {
+    background-color: #ffebee;
+    border-left: 5px solid #f44336;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.error-alert p {
+    color: #c62828;
+    font-weight: bold;
+    margin: 0;
+}
+
+.dark-mode .error-alert {
+    background-color: #311b1b;
+    border-left-color: #e57373;
+}
+
+/* ===== ISSUES ===== */
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.btn-outline:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* Color variations for labels */
+.label-green { border-color: #2cbb4d; color: #2cbb4d; }
+.label-green:hover { background: #2cbb4d; color: white; }
+
+.label-blue { border-color: #0366d6; color: #0366d6; }
+.label-blue:hover { background: #0366d6; color: white; }
+
+.label-red { border-color: #cb2431; color: #cb2431; }
+.label-red:hover { background: #cb2431; color: white; }
+
+.label-gray { border-color: #6a737d; color: #6a737d; }
+.label-gray:hover { background: #6a737d; color: white; }
+
+.label-pink { border-color: #ea4aaa; color: #ea4aaa; }
+.label-pink:hover { background: #ea4aaa; color: white; }
+
+.label-purple { border-color: #6f42c1; color: #6f42c1; }
+.label-purple:hover { background: #6f42c1; color: white; }
+
+.label-teal { border-color: #2b3a42; color: #2b3a42; }
+.label-teal:hover { background: #2b3a42; color: white; }
+
+.dark-mode .label-teal { border-color: #81e6d9; color: #81e6d9; }
+.dark-mode .label-teal:hover { background: #81e6d9; color: black; }
+
+.issue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.issue-card {
+    background: var(--input);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s;
+}
+
+.issue-card:hover {
+    transform: translateX(5px);
+}
+
+.issue-main {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.issue-details {
+    flex: 1;
+}
+
+.issue-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.issue-meta {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 8px;
+}
+
+.repo-badge {
+    background: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.tag-container {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    font-size: 0.75em;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.dark-mode .tag {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== LINKS ===== */
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.dark-mode a {
+    color: #93c5fd;
+}
+
+.dark-mode a:hover {
+    color: #bfdbfe;
+}
+
+/* ===== HEADERS ===== */
+
+h2, h3 {
+    color: var(--text);
+    opacity: 0.9;
+    margin-bottom: 15px;
 }
