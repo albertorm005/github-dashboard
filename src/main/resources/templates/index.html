@@ -2,14 +2,11 @@
 
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-
-    ```
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Repository Analytics</title>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/css/styles.css">
-
 </head>
 
 <body>
@@ -19,9 +16,14 @@
 
     <h1>GitHub Repository Analytics</h1>
 
-    <button onclick="toggleDarkMode()" style="margin-bottom:20px;">
+    <button id="themeToggle" onclick="toggleDarkMode()" style="margin-bottom:20px;">
         🌙 Toggle Dark Mode
     </button>
+
+    <!-- ERROR DISPLAY -->
+    <div th:if="${error != null}" class="error-alert">
+        <p th:text="${error}"></p>
+    </div>
 
     <!-- BUSCADOR -->
     <div class="card">
@@ -79,6 +81,24 @@
         </button>
 
     </a>
+
+    <!-- ISSUE EXPLORER TRIGGER -->
+    <div class="card">
+        <h3>Issue Explorer</h3>
+        <div class="filter-buttons">
+            <a th:href="@{/issues(label='good first issue')}"><button class="btn-outline label-green">Good First Issue</button></a>
+            <a th:href="@{/issues(label='help wanted')}"><button class="btn-outline label-blue">Help Wanted</button></a>
+            <a th:href="@{/issues(label='bug')}"><button class="btn-outline label-red">Bugs</button></a>
+            <a th:href="@{/issues(label='documentation')}"><button class="btn-outline label-gray">Documentation</button></a>
+            <a th:href="@{/issues(label='hacktoberfest')}"><button class="btn-outline label-pink">Hacktoberfest</button></a>
+            <a th:href="@{/issues(label='first-timers-only')}"><button class="btn-outline label-purple">First-Timers Only</button></a>
+            <a th:href="@{/issues(label='enhancement')}"><button class="btn-outline label-teal">Enhancement</button></a>
+        </div>
+        <form action="/issues" method="get" style="margin-top:15px;">
+            <input type="text" name="label" placeholder="Custom label (e.g. enhancement)" th:value="${currentLabel}">
+            <button type="submit">Search Issues</button>
+        </form>
+    </div>
 
     <script>
         function enableDownload(repoUrl){
@@ -190,8 +210,27 @@
 
     </div>
 
-
-</div>
+    <!-- ================= ISSUES ================= -->
+    <div th:if="${issues != null}" class="card">
+        <h2 th:text="'Issues with label: ' + ${currentLabel}"></h2>
+        <div class="issue-list">
+            <div th:each="issue : ${issues}" class="issue-card">
+                <div class="issue-main">
+                    <img th:src="${issue.user.avatarUrl}" class="avatar-small">
+                    <div class="issue-details">
+                        <a th:href="${issue.htmlUrl}" th:text="${issue.title}" target="_blank" class="issue-title"></a>
+                        <p class="issue-meta">
+                            <span th:text="${issue.repositoryName}" class="repo-badge"></span>
+                            opened by <span th:text="${issue.user.login}"></span>
+                        </p>
+                        <div class="tag-container">
+                            <span th:each="tag : ${issue.labels}" th:text="${tag}" class="tag"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <!-- ================= CHARTS ================= -->
 
@@ -289,11 +328,11 @@
 
 <script>
     function validateRepoUrl(){
-
         let input = document.getElementById("repoInput").value.trim();
         const error = document.getElementById("urlError");
 
-        if (!input.startsWith("https://github.com/")) {
+        if (input === "") {
+            error.innerText = "Please enter a value";
             error.style.display = "block";
             return false;
         }
@@ -305,20 +344,44 @@
 </script>
 <script>
     function toggleDarkMode(){
-        document.body.classList.toggle("dark-mode");
-
-        // guardar preferencia
-        if(document.body.classList.contains("dark-mode")){
+        const isDark = document.body.classList.toggle("dark-mode");
+        const btn = document.getElementById("themeToggle");
+        
+        if(isDark){
             localStorage.setItem("theme","dark");
+            btn.innerHTML = "☀️ Switch to Light Mode";
+            updateChartsTheme(true);
         } else {
             localStorage.setItem("theme","light");
+            btn.innerHTML = "🌙 Switch to Dark Mode";
+            updateChartsTheme(false);
         }
+    }
+
+    function updateChartsTheme(isDark){
+        const color = isDark ? "#f8fafc" : "#1c1e21";
+        const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+        
+        Chart.helpers.each(Chart.instances, function(instance){
+            instance.options.scales.x.ticks.color = color;
+            instance.options.scales.y.ticks.color = color;
+            instance.options.scales.x.grid.color = gridColor;
+            instance.options.scales.y.grid.color = gridColor;
+            if(instance.options.plugins.legend){
+                instance.options.plugins.legend.labels.color = color;
+            }
+            instance.update();
+        });
     }
 
     // cargar preferencia al abrir
     window.onload = function(){
-        if(localStorage.getItem("theme") === "dark"){
+        const isDark = localStorage.getItem("theme") === "dark";
+        if(isDark){
             document.body.classList.add("dark-mode");
+            document.getElementById("themeToggle").innerHTML = "☀️ Switch to Light Mode";
+            // Wait for charts to be created before updating their theme
+            setTimeout(() => updateChartsTheme(true), 500);
         }
     }
 </script>
